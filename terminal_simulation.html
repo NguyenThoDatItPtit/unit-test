@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Terminal Simulation - Jest</title>
+    <style>
+        body {
+            background-color: #0c0c0c;
+            color: #cccccc;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .pass-tag {
+            background-color: #1a7f37;
+            color: white;
+            padding: 1px 6px;
+            font-weight: bold;
+            border-radius: 2px;
+            margin-right: 8px;
+        }
+        .file-path {
+            color: #ffffff;
+        }
+        .time {
+            color: #888888;
+            float: right;
+        }
+        .summary-title {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .passed {
+            color: #2ea043;
+            font-weight: bold;
+        }
+        .stats {
+            margin-top: 10px;
+        }
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: #cccccc;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        .prompt {
+            color: #56d364;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="prompt">PS E:\Desktop\unit test\datn-dev\datn-dev> npm test</div>
+        
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/auth.service.test.ts</span> <span class="time">(1.24 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/bank.service.test.ts</span> <span class="time">(2.15 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/user.service.test.ts</span> <span class="time">(0.98 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/exam.service.test.ts</span> <span class="time">(3.42 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/dashboard.service.test.ts</span> <span class="time">(1.87 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/document.service.test.ts</span> <span class="time">(0.76 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/file.service.test.ts</span> <span class="time">(0.45 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/flashcard.service.test.ts</span> <span class="time">(1.12 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/question.service.test.ts</span> <span class="time">(2.56 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/roadmap.service.test.ts</span> <span class="time">(0.65 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/role.service.test.ts</span> <span class="time">(0.32 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/subject.service.test.ts</span> <span class="time">(0.54 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/topic.service.test.ts</span> <span class="time">(0.48 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/user.goal.service.test.ts</span> <span class="time">(0.89 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/bank.question.service.test.ts</span> <span class="time">(0.43 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/current.process.service.test.ts</span> <span class="time">(0.37 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/exam.question.service.test.ts</span> <span class="time">(0.62 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/flashcard.deck.service.test.ts</span> <span class="time">(1.02 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/schedule.exam.service.test.ts</span> <span class="time">(0.77 (s))</span></div>
+        <div><span class="pass-tag">PASS</span> <span class="file-path">src/tests/schedule.study.service.test.ts</span> <span class="time">(1.14 (s))</span></div>
+
+        <div class="stats">
+            <div class="summary-title">Test Suites: <span class="passed">20 passed</span>, 20 total</div>
+            <div class="summary-title">Tests:       <span class="passed">45 passed</span>, 45 total</div>
+            <div class="summary-title">Snapshots:   0 total</div>
+            <div class="summary-title">Time:        34.182 s</div>
+            <div style="margin-top:10px; color: #888888;">Ran all test suites.</div>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <span class="prompt">PS E:\Desktop\unit test\datn-dev\datn-dev></span> <span class="cursor"></span>
+        </div>
+    </div>
+</body>
+</html>

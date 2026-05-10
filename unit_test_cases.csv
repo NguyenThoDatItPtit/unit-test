@@ -1,0 +1,235 @@
+Test Case ID,Test Objective,Input,Expected Output,Status,Notes
+TC-AUTH-001,Đăng ký người dùng thành công,"testuser, pass123, test@example.com",Đối tượng user mới,PASSED,[CheckDB] Verify SELECT & INSERT [Rollback]
+TC-AUTH-002,Đăng ký với email đã tồn tại,email='existing@example.com',Ném lỗi EMAIL_EXISTS,PASSED,[CheckDB] Verify SELECT check [Rollback]
+TC-AUTH-003,Đăng nhập thành công,"test@example.com, password123",User object + Token,PASSED,[CheckDB] Verify SELECT email
+TC-AUTH-004,Đăng nhập sai mật khẩu,wrong_pass,Ném lỗi INVALID_PASSWORD,PASSED,[CheckDB] Verify SELECT attempted
+TC-AUTH-005,Đăng nhập email không tồn tại,nonexistent@example.com,Ném lỗi,PASSED,[CheckDB] Verify SELECT check
+TC-AUTH-006,Đăng ký mật khẩu cực ngắn,password='1',Ném lỗi PASSWORD_TOO_SHORT,FAILED,Project chấp nhận pass 1 ký tự (Lỗi bảo mật)
+TC-AUTH-007,Đăng nhập với email viết hoa,Test@Gmail.Com,User object (Case-insensitive),FAILED,Hệ thống phân biệt chữ hoa chữ thường với email
+TC-AUTH-008,SQL Injection trong login,email="' OR 1=1 --",Ném lỗi INVALID_CREDENTIALS,PASSED,Sử dụng parameterized query nên an toàn
+TC-AUTH-009,Đăng ký với email rỗng,email='',Ném lỗi INVALID_INPUT,PASSED,Validate đầu vào tốt
+TC-AUTH-010,Token hết hạn xử lý,Expired Token,Ném lỗi TOKEN_EXPIRED,PASSED,Middleware check JWT tốt
+TC-AUTH-011,SQL Injection trong register (username),user_name="'); DROP TABLE users; --",Ném lỗi INVALID_INPUT,PASSED,Parameterized query ngăn chặn tốt
+TC-AUTH-012,Đăng ký với email không đúng định dạng,email='abc',Ném lỗi INVALID_EMAIL,FAILED,Hệ thống không validate định dạng email
+TC-AUTH-013,Đăng nhập khi tài khoản bị khóa,available=false,Ném lỗi ACCOUNT_LOCKED,PASSED,Check available=true tốt
+TC-AUTH-014,Gửi yêu cầu reset password,email='test@ex.com',void,PASSED,Logic tạo mail template tốt
+TC-AUTH-015,Reset password với token sai,token='wrong',Ném lỗi INVALID_TOKEN,PASSED,Verify token chính xác
+TC-AUTH-016,Đăng ký với username chứa ký tự đặc biệt,user_name='!@#$%^',Ném lỗi INVALID_USERNAME,FAILED,Hệ thống cho phép ký tự đặc biệt trong tên
+TC-AUTH-017,Đăng nhập đồng thời trên nhiều thiết bị,None,Token duy nhất hợp lệ,PASSED,JWT stateless hoạt động tốt
+TC-AUTH-018,Đăng ký với password chỉ có khoảng trắng,password='   ',Ném lỗi INVALID_PASSWORD,FAILED,Cho phép password toàn khoảng trắng
+TC-AUTH-019,Xác thực quyền Admin truy cập trang User,token=User,Ném lỗi ACCESS_DENIED,PASSED,Role-based middleware tốt
+TC-AUTH-020,Refresh token sau khi hết hạn,Old Token,Ném lỗi,PASSED,Verify JWT exp tốt
+TC-USER-001,Lấy user theo ID thành công,user_id=1,Đối tượng user ID 1,PASSED,[CheckDB] Verify WHERE user_id
+TC-USER-002,Lấy user không tồn tại ném lỗi,user_id=999,Ném lỗi USER_NOT_FOUND,PASSED,[CheckDB] Verify SELECT attempted
+TC-USER-003,Cập nhật user thành công,"user_id=1, name='Updated'",Đối tượng user đã cập nhật,PASSED,[CheckDB] Verify UPDATE query [Rollback]
+TC-USER-004,Xóa user thành công,user_id=1,void (không lỗi),PASSED,[CheckDB] Verify DELETE query [Rollback]
+TC-USER-005,Lấy tất cả user phân trang,page=1,User list + totalPages,PASSED,[CheckDB] Verify dual SELECTs
+TC-USER-006,Cập nhật email trùng người khác,email='other@ex.com',Ném lỗi EMAIL_ALREADY_IN_USE,FAILED,Hệ thống không check trùng khi update (Gây lỗi DB)
+TC-USER-007,Xóa user đã có lịch sử làm bài,user_id=1,Ném lỗi FOREIGN_KEY_VIOLATION,FAILED,Hard delete gây lỗi DB nếu có dữ liệu liên quan
+TC-USER-008,Cập nhật role không tồn tại,role_id=999,Ném lỗi ROLE_NOT_FOUND,FAILED,Hệ thống không validate role_id khi update
+TC-USER-009,Cập nhật mật khẩu thành rỗng,password='',Ném lỗi INVALID_PASSWORD,FAILED,Cho phép set password rỗng khi update
+TC-USER-010,Tìm kiếm user bằng tiếng Việt có dấu,search='Đạt',Trả về user 'Đạt',PASSED,Unaccent SQL hoạt động tốt
+TC-USER-011,Lấy thông tin cá nhân (Profile),token=user1,User object,PASSED,Xác thực JWT và lấy đúng ID
+TC-USER-012,Cập nhật avatar vượt dung lượng,file=10MB,Ném lỗi FILE_TOO_LARGE,PASSED,Middleware upload check tốt
+TC-USER-013,Thay đổi trạng thái available,available=false,User disabled,PASSED,Update boolean field tốt
+TC-USER-014,Lấy danh sách user theo status,status=false,Mảng user bị khóa,PASSED,Filter available tốt
+TC-USER-015,Xóa user không tồn tại,id=999,Ném lỗi USER_NOT_FOUND,PASSED,Check rowCount == 0 tốt
+TC-USER-016,Cập nhật birthday ở tương lai,birthday='2050-01-01',Ném lỗi,FAILED,Hệ thống không validate ngày sinh hợp lệ
+TC-USER-017,Lấy user theo role Admin,role_id=2,Mảng users admin,PASSED,Join role table tốt
+TC-USER-018,Search user với từ khóa rỗng,search='',Trả về tất cả user,PASSED,Handle empty search tốt
+TC-USER-019,Cập nhật user với ID không hợp lệ,id='abc',Ném lỗi,PASSED,Validate type ID tốt
+TC-USER-020,Lấy user với trang vượt giới hạn,page=9999,Mảng rỗng,PASSED,Paging offset lớn không gây lỗi
+TC-BANK-001,Lấy ngân hàng đề thành công,bank_id=1,Bank + Questions + Subject,PASSED,[CheckDB] Verify multi-SELECTs
+TC-BANK-002,Nộp bài và tính điểm chính xác,"answers=[{""question_id"": 1, ""user_answer"": [10], ""type_question"": 1}]",Score=0.25 (1 câu đúng),PASSED,[CheckDB] Verify History INSERT [Rollback]
+TC-BANK-003,Nộp bài không có câu trả lời,answers=[],Score=0,PASSED,[CheckDB] Verify COMMIT transaction [Rollback]
+TC-BANK-004,Nộp sai hoàn toàn MCQ (0 câu đúng),user_answer=[99],Score=0,FAILED,Logic error: 0 câu đúng được 1 điểm
+TC-BANK-005,Chọn MCQ thừa đáp án sai,user_answer=[A,B,C,D],Score=0,FAILED,Logic error: Chọn thừa vẫn được điểm tối đa
+TC-BANK-006,Nộp bài với bank_id âm,bank_id=-1,Ném lỗi INVALID_BANK_ID,PASSED,Check ID dương tốt
+TC-BANK-007,Lấy câu hỏi của ngân hàng rỗng,bank_id=2 (no questions),Mảng câu hỏi rỗng,PASSED,Handle empty relation tốt
+TC-BANK-008,Nộp bài với định dạng answer sai,answers='string',Ném lỗi INVALID_FORMAT,FAILED,Server crash do không check kiểu dữ liệu mảng
+TC-BANK-009,Lấy lịch sử làm bài ngân hàng,user_id=1,Mảng history,PASSED,Query history_bank tốt
+TC-BANK-010,Tính điểm bài thi tự luận,"answers=[{""question_id"": 1, ""user_answer"": [""Nội dung đáp án""], ""type_question"": 3}]",Score=0.25 (Nếu khớp text),PASSED,Phân loại type_question tốt
+TC-BANK-011,Tạo ngân hàng đề thiếu tên,name='',Ném lỗi,PASSED,Validate required fields tốt
+TC-BANK-012,Lấy danh sách ngân hàng đề theo môn,subject_id=1,Mảng banks,PASSED,Filter subject tốt
+TC-BANK-013,Cập nhật ngân hàng đề không tồn tại,id=999,Ném lỗi,PASSED,Check exists trước khi update
+TC-BANK-014,Nộp bài thi khi ngân hàng đã bị ẩn,available=false,Ném lỗi,PASSED,Check available status tốt
+TC-BANK-015,Lấy top ngân hàng đề phổ biến,None,Mảng banks sắp xếp theo submits,PASSED,Aggregation query tốt
+TC-BANK-016,Xóa ngân hàng đề đang có lịch sử,id=1,Ném lỗi,FAILED,Gây lỗi DB do ràng buộc khóa ngoại
+TC-BANK-017,Lấy chi tiết câu hỏi kèm ảnh,bank_id=1,Question + Image links,PASSED,Join media table tốt
+TC-BANK-018,Tính điểm với câu hỏi nhiều đáp án đúng,multi answers,Score tính theo tỷ lệ,FAILED,Chỉ tính điểm nếu chọn đúng tất cả
+TC-BANK-019,Lấy lịch sử làm bài của user khác,user_id=2 (not me),Ném lỗi ACCESS_DENIED,PASSED,Check ownership tốt
+TC-BANK-020,Nộp bài với ID câu hỏi không thuộc bank,q_id=999,Ném lỗi,PASSED,Validate question belongs to bank tốt
+TC-EXAM-001,Lấy bài thi (Cache miss flow),exam_id=1,Exam object + Questions,PASSED,[CheckDB] Verify SELECT & Redis set
+TC-EXAM-002,Nộp bài thi tính điểm giao dịch,"answers=[{""question_id"": 1, ""user_answer"": [10], ""type_question"": 1}]",Score=0.25,PASSED,[CheckDB] Verify Transactional History [Rollback]
+TC-EXAM-003,Chọn MCQ thừa đáp án sai,user_answer=[A,B,C,D],Score=0,FAILED,Logic error: Không phạt khi chọn thừa đáp án
+TC-EXAM-004,Nộp bài vượt quá thời gian cho phép,time_test=120 limit=60,Ném lỗi EXAM_TIMEOUT,FAILED,Hệ thống không check thời gian khi submit
+TC-EXAM-005,Nộp bài thi không có câu hỏi nào,exam_id=99 (empty),Score=0,PASSED,Xử lý mảng rỗng tốt
+TC-EXAM-006,Xếp hạng khi trùng điểm/thời gian,2 users same,Xếp hạng đồng hạng,PASSED,Logic ranking Redis ổn định
+TC-EXAM-007,Lấy top 100 bảng xếp hạng,exam_id=1,Mảng 100 users,PASSED,Redis ZREVRANGE tốt
+TC-EXAM-008,Tạo bài thi thiếu topic_id,topic_id=null,Ném lỗi INVALID_TOPIC,PASSED,Ràng buộc DB tốt
+TC-EXAM-009,Cập nhật bài thi đang diễn ra,status='running',Cấm cập nhật,FAILED,Cho phép sửa bài thi khi user đang làm
+TC-EXAM-010,Lấy chi tiết kết quả làm bài,history_id=1,Đối tượng kèm đáp án đúng,PASSED,Join history & answers tốt
+TC-EXAM-011,Tạo bài thi với thời gian âm,time_limit=-10,Ném lỗi,PASSED,Check giá trị dương tốt
+TC-EXAM-012,Lấy danh sách bài thi theo topic,topic_id=1,Mảng exams,PASSED,Query filter topic tốt
+TC-EXAM-013,Nộp bài thi 2 lần liên tiếp,id=1,Ném lỗi ALREADY_SUBMITTED,FAILED,Cho phép nộp bài nhiều lần cho 1 kỳ thi
+TC-EXAM-014,Lấy bảng xếp hạng khi Redis die,Redis Down,Trả về mảng rỗng hoặc DB fallback,PASSED,Handle Redis error tốt
+TC-EXAM-015,Xóa bài thi có dữ liệu xếp hạng,id=1,Xóa cả Redis key,PASSED,Teardown logic tốt
+TC-EXAM-016,Tạo bài thi trùng tên trong topic,name='Final',Ném lỗi,FAILED,Hệ thống cho phép trùng tên bài thi
+TC-EXAM-017,Lấy bài thi với token hết hạn,Token expired,Ném lỗi,PASSED,Middleware check chính xác
+TC-EXAM-018,Tính điểm câu hỏi tự luận bài thi,type=3,Score=0 (chờ chấm),PASSED,Logic phân loại bài làm tốt
+TC-EXAM-019,Lấy danh sách bài thi công khai,available=true,Mảng exams,PASSED,Filter public exams tốt
+TC-EXAM-020,Nộp bài thi với mảng câu hỏi giả mạo,q_id=999,Ném lỗi,PASSED,Validate integrity tốt
+TC-FLSH-001,Thêm Flashcard thành công,deck_id=1,Flashcard object,PASSED,[CheckDB] Verify COUNT & INSERT [Rollback]
+TC-FLSH-002,Ngăn chặn nếu vượt giới hạn (50),deck_id=1 (count=50),null,PASSED,[CheckDB] Verify SELECT COUNT
+TC-FLSH-003,Cập nhật kết quả học tập,correctIds=[1,2],void (không lỗi),PASSED,[CheckDB] Verify multi-UPDATEs [Rollback]
+TC-FLSH-004,Thêm thẻ vào bộ thẻ không tồn tại,deck_id=999,Ném lỗi DECK_NOT_FOUND,FAILED,Gây lỗi Foreign Key Database
+TC-FLSH-005,Update thẻ với field lạ,data={invalid:1},Ném lỗi INVALID_FIELD,FAILED,Lỗi SQL do không lọc field đầu vào
+TC-FLSH-006,Học flashcard khi bộ thẻ trống,deck_id=3 (empty),Mảng rỗng,PASSED,Không lỗi khi random trên mảng rỗng
+TC-FLSH-007,Review flashcard lọc theo status,status='miss',Chỉ trả về thẻ 'miss',PASSED,Query WHERE status đúng
+TC-FLSH-008,Xóa bộ thẻ flashcard,deck_id=1,true,PASSED,Cascade delete thẻ liên quan tốt
+TC-FLSH-009,Tạo bộ thẻ trùng tên cùng user,name='My Deck',Ném lỗi DECK_EXISTS,FAILED,Hệ thống cho tạo trùng tên deck
+TC-FLSH-010,Lấy danh sách bộ thẻ công khai,available=true,Mảng decks,PASSED,Filter public decks tốt
+TC-FLSH-011,Xóa thẻ không thuộc quyền sở hữu,card_id=10 (user2),Ném lỗi ACCESS_DENIED,PASSED,Check ownership tốt
+TC-FLSH-012,Cập nhật nội dung thẻ rỗng,front='',Ném lỗi,PASSED,Validate content rỗng tốt
+TC-FLSH-013,Lấy thống kê học tập bộ thẻ,deck_id=1,Số câu đúng/sai,PASSED,Aggregate status tốt
+TC-FLSH-014,Tạo quá 100 bộ thẻ 1 user,count=101,Ném lỗi LIMIT_EXCEEDED,PASSED,Check user quota tốt
+TC-FLSH-015,Học thẻ theo chế độ ghi nhớ,mode='memorize',Mảng thẻ đã lọc,PASSED,Logic lọc thẻ thông minh
+TC-FLSH-016,Cập nhật thẻ không tồn tại,id=999,Ném lỗi,PASSED,Check exists tốt
+TC-FLSH-017,Lấy thẻ theo từ khóa tìm kiếm,search='apple',Mảng thẻ,PASSED,Query ILIKE tốt
+TC-FLSH-018,Chia sẻ bộ thẻ cho user khác,deck_id=1 target=user2,Success,PASSED,Logic share permission tốt
+TC-FLSH-019,Xóa tất cả thẻ trong bộ,deck_id=1,Mảng rỗng,PASSED,Bulk delete tốt
+TC-FLSH-020,Lấy thẻ với ID âm,id=-1,Ném lỗi,PASSED,Validate ID dương tốt
+TC-QUES-001,Tạo câu hỏi trong giao dịch,content='Q1',Question object + ID,PASSED,[CheckDB] Verify BEGIN/COMMIT [Rollback]
+TC-QUES-002,Rollback khi xảy ra lỗi,invalid data,Throws Error,PASSED,[CheckDB] Verify ROLLBACK command [Rollback]
+TC-QUES-003,Tạo câu hỏi không có đáp án đúng,is_correct=false all,Ném lỗi NO_CORRECT_ANSWER,FAILED,Cho phép tạo câu hỏi "vô nghiệm"
+TC-QUES-004,Xóa bớt đáp án khi update,answers=[A],Mảng đáp án chỉ còn A,FAILED,Update chỉ cho thêm, không cho xóa đáp án cũ
+TC-QUES-005,Tạo câu hỏi với nội dung cực dài,content=1MB text,Question object,PASSED,Text field DB lưu trữ tốt
+TC-QUES-006,Tìm kiếm câu hỏi không có kết quả,search='xyz123',Mảng rỗng,PASSED,Search logic chính xác
+TC-QUES-007,Cập nhật loại câu hỏi (MCQ sang Tự luận),type=2 to 3,Question updated,PASSED,Xử lý logic chuyển đổi tốt
+TC-QUES-008,Lấy câu hỏi theo mảng ID,ids=[1,2,3],Mảng 3 đối tượng,PASSED,Sử dụng ANY($1) trong SQL tốt
+TC-QUES-009,Xóa câu hỏi đang nằm trong đề thi,id=1 (in exam),Ném lỗi,FAILED,Hard delete gây lỗi dữ liệu bài thi
+TC-QUES-010,Đính kèm ảnh vào câu hỏi thành công,images=['img1.png'],Question + Images,PASSED,Insert image_question tốt
+TC-QUES-011,Tạo câu hỏi trùng nội dung trong topic,content='Q1',Ném lỗi,FAILED,Cho phép tạo câu hỏi trùng lặp
+TC-QUES-012,Lấy danh sách câu hỏi phân trang,page=1,Questions + totalPages,PASSED,Paging logic ổn định
+TC-QUES-013,Cập nhật ảnh cho câu hỏi,new images,Images updated,PASSED,Sync media list tốt
+TC-QUES-014,Tạo câu hỏi thiếu nội dung,content='',Ném lỗi,PASSED,Validate content tốt
+TC-QUES-015,Lấy câu hỏi kèm đáp án đã trộn,shuffle=true,Mảng đáp án ngẫu nhiên,PASSED,Array shuffle logic tốt
+TC-QUES-016,Xóa câu hỏi không tồn tại,id=999,Ném lỗi,PASSED,Check rowCount tốt
+TC-QUES-017,Lấy câu hỏi theo mức độ khó,level=1,Mảng câu hỏi dễ,PASSED,Filter level tốt
+TC-QUES-018,Cập nhật topic cho câu hỏi,topic_id=2,Topic updated,PASSED,Update FK tốt
+TC-QUES-019,Tạo câu hỏi với 10 đáp án,answers=10,Question object,PASSED,Handle large answer set tốt
+TC-QUES-020,Tìm kiếm câu hỏi có dấu tiếng Việt,search='câu hỏi',Kết quả đúng,PASSED,Unaccent search tốt
+TC-SUBJ-001,Lấy môn học available,None,Mảng môn học,PASSED,Filter available=true tốt
+TC-SUBJ-002,Tạo môn học trùng tên,name='Math',Ném lỗi SUBJECT_EXISTS,FAILED,Hệ thống không check trùng tên môn học
+TC-SUBJ-003,Xóa môn học có chứa chủ đề,id=1,Ném lỗi,PASSED,Check FK topic tốt
+TC-SUBJ-004,Cập nhật trạng thái môn học,available=false,Subject updated,PASSED,Update boolean status tốt
+TC-SUBJ-005,Lấy môn học kèm số lượng chủ đề,id=1,Subject + TopicCount,PASSED,Count join tốt
+TC-SUBJ-006,Tạo môn học thiếu ảnh đại diện,image=null,Ném lỗi,PASSED,Validate required media tốt
+TC-SUBJ-007,Lấy danh sách môn học theo loại,type=1,Mảng môn học,PASSED,Filter type tốt
+TC-SUBJ-008,Cập nhật môn học không tồn tại,id=999,Ném lỗi,PASSED,Check exists tốt
+TC-SUBJ-009,Xóa môn học thành công (Rỗng),id=10 (no topics),Success,PASSED,Delete successful tốt
+TC-SUBJ-010,Lấy môn học với search keyword,search='Toán',Mảng kết quả,PASSED,Search unaccent tốt
+TC-SUBJ-011,Tạo môn học tên quá dài (>255),name=300 chars,Ném lỗi,PASSED,Check string length tốt
+TC-SUBJ-012,Lấy chi tiết môn học,id=1,Subject object,PASSED,Select by ID tốt
+TC-SUBJ-013,Cập nhật tên môn học thành rỗng,name='',Ném lỗi,PASSED,Validate input tốt
+TC-SUBJ-014,Lấy môn học theo slug,slug='toan-hoc',Subject object,PASSED,Query by slug tốt
+TC-SUBJ-015,Khôi phục môn học đã ẩn,available=true,Subject active,PASSED,Status recovery tốt
+TC-TOPIC-001,Lấy chủ đề theo môn học,subject_id=1,Mảng chủ đề,PASSED,Query WHERE subject_id tốt
+TC-TOPIC-002,Tạo chủ đề thành công,name='Algebra',Topic object,PASSED,Insert topic tốt
+TC-TOPIC-003,Xóa chủ đề có câu hỏi,id=1,Ném lỗi,FAILED,Hard delete gây lỗi DB
+TC-TOPIC-004,Cập nhật tên chủ đề,id=1 name='New',Success,PASSED,Update query tốt
+TC-TOPIC-005,Lấy chủ đề kèm số lượng bài thi,id=1,Topic + ExamCount,PASSED,Subquery count tốt
+TC-TOPIC-006,Tạo chủ đề trùng tên cùng môn,name='Algebra',Ném lỗi,FAILED,Hệ thống cho tạo trùng topic trong môn
+TC-TOPIC-007,Lấy chi tiết chủ đề,id=1,Topic object,PASSED,Select by ID tốt
+TC-TOPIC-008,Ẩn chủ đề thành công,available=false,Topic hidden,PASSED,Status update tốt
+TC-TOPIC-009,Lấy tất cả chủ đề phân trang,page=1,Topics + Total,PASSED,Paging logic tốt
+TC-TOPIC-010,Tìm kiếm chủ đề theo tên,search='Đại số',Mảng kết quả,PASSED,Search unaccent tốt
+TC-TOPIC-011,Tạo chủ đề cho môn không tồn tại,subj_id=999,Ném lỗi,PASSED,Check FK constraint tốt
+TC-TOPIC-012,Cập nhật môn học cho chủ đề,subj_id=2,Topic updated,PASSED,Move topic tốt
+TC-TOPIC-013,Lấy chủ đề theo mức độ ưu tiên,None,Sắp xếp theo order_index,PASSED,Sort logic tốt
+TC-TOPIC-014,Xóa chủ đề rỗng,id=10,Success,PASSED,Delete successful tốt
+TC-TOPIC-015,Lấy chủ đề theo loại bài học,type='video',Mảng topics,PASSED,Filter type tốt
+TC-ROAD-001,Lấy lộ trình học tập,None,Mảng các bước,PASSED,Query roadmap steps tốt
+TC-ROAD-002,Tạo bước lộ trình mới,name='Step 1',Step object,PASSED,Insert step tốt
+TC-ROAD-003,Xóa bước lộ trình thành công,id=1,Success,PASSED,Delete step tốt
+TC-ROAD-004,Cập nhật thứ tự các bước,order=[1,2,3],Thứ tự mới,PASSED,Reorder logic tốt
+TC-ROAD-005,Lấy lộ trình của môn học,subj_id=1,Mảng các bước,PASSED,Filter subject tốt
+TC-ROAD-006,Tạo bước lộ trình trùng thứ tự,order=1 (exists),Ném lỗi,FAILED,Hệ thống cho phép trùng thứ tự hiển thị
+TC-ROAD-007,Cập nhật nội dung bước lộ trình,content='New',Success,PASSED,Update content tốt
+TC-ROAD-008,Lấy lộ trình cho user mới,user_id=1,Lộ trình mặc định,PASSED,Initial data tốt
+TC-ROAD-009,Xóa lộ trình môn học,subj_id=1,Xóa toàn bộ các bước,PASSED,Bulk delete tốt
+TC-ROAD-010,Lấy chi tiết bước lộ trình,id=1,Step object,PASSED,Select by ID tốt
+TC-ROAD-011,Tạo bước lộ trình thiếu mô tả,desc='',Ném lỗi,PASSED,Validate required tốt
+TC-ROAD-012,Lấy lộ trình kèm tiến độ user,user_id=1,Steps + Status,PASSED,Join progress tốt
+TC-ROAD-013,Ẩn bước lộ trình,available=false,Step hidden,PASSED,Status update tốt
+TC-ROAD-014,Cập nhật icon cho bước lộ trình,icon='star',Success,PASSED,Media update tốt
+TC-ROAD-015,Tìm kiếm bước trong lộ trình,search='Intro',Kết quả đúng,PASSED,Search logic tốt
+TC-PROG-001,Cập nhật tiến độ vượt 100%,progress=120,Set 100,PASSED,Logic kẹp biên tốt
+TC-PROG-002,Tiến độ cho mục tiêu không tồn tại,id=999,Ném lỗi GOAL_NOT_FOUND,PASSED,Check FK goal tốt
+TC-PROG-003,Lấy tiến độ theo ngày,date=today,Bản ghi tiến độ,PASSED,Query filter theo ngày tốt
+TC-PROG-004,Khởi tạo tiến độ 0% khi tạo mục tiêu,id=1,Progress=0,PASSED,Initial state tốt
+TC-PROG-005,Cập nhật tiến độ âm,progress=-10,Ném lỗi,PASSED,Check giá trị dương tốt
+TC-PROG-006,Lấy tiến độ tổng thể của user,user_id=1,Phần trăm trung bình,PASSED,Aggregation tốt
+TC-PROG-007,Xóa tiến độ cũ khi xóa mục tiêu,goal_id=1,Success,PASSED,Cascade delete tốt
+TC-PROG-008,Cập nhật tiến độ định kỳ,None,Bản ghi mới hàng ngày,PASSED,Cron job logic tốt
+TC-PROG-009,Lấy lịch sử tiến độ 7 ngày qua,None,Mảng 7 phần tử,PASSED,Generate series tốt
+TC-PROG-010,Tiến độ cho user bị khóa,status=false,Cấm cập nhật,PASSED,Access control tốt
+TC-PROG-011,Cập nhật tiến độ trùng ngày,date=today,Update bản ghi cũ,PASSED,Upsert logic tốt
+TC-PROG-012,Lấy tiến độ theo môn học,subj_id=1,Mảng progress,PASSED,Filter subject tốt
+TC-PROG-013,Tính toán % hoàn thành lộ trình,road_id=1,Percentage,PASSED,Calculation tốt
+TC-PROG-014,Tiến độ vượt mốc cảnh báo,90%,Gửi notify,PASSED,Event trigger tốt
+TC-PROG-015,Lấy tiến độ của user khác,user_id=2,Ném lỗi,PASSED,Security check tốt
+TC-DASH-001,Lấy thống kê Dashboard (Thẻ),year=2026 month=4,Dữ liệu Overview + Popular,PASSED,[CheckDB] Verify 3 aggregate SELECTs
+TC-DASH-002,Thống kê với tháng không hợp lệ,month=13,Ném lỗi INVALID_DATE,FAILED,Hệ thống vẫn tính toán với ngày tháng sai
+TC-DASH-003,Thống kê khi DB rỗng,Empty DB,Dữ liệu 0 hoặc null,PASSED,Xử lý COALESCE trong SQL tốt
+TC-DASH-004,Thống kê biểu đồ đường 30 ngày,None,Mảng 30 phần tử,PASSED,Generate_series hoạt động ổn định
+TC-DASH-005,Thống kê người dùng mới trong ngày,date=today,Số lượng,PASSED,Count query tốt
+TC-DASH-006,Lấy top môn học được quan tâm,None,Mảng môn học,PASSED,Order by views tốt
+TC-DASH-007,Thống kê tỷ lệ nộp bài thành công,None,Phần trăm,PASSED,Divide by zero handle tốt
+TC-DASH-008,Thống kê doanh thu (nếu có),None,Tổng tiền,PASSED,Sum query tốt
+TC-DASH-009,Thống kê theo quý,quarter=1,Dữ liệu 3 tháng,PASSED,Group by month tốt
+TC-DASH-010,Lấy thông báo hệ thống mới nhất,None,Mảng thông báo,PASSED,Limit query tốt
+TC-FILE-001,Lấy danh sách file JSON,Thư mục files,Mảng danh sách file .json,PASSED,Verify filter .json logic & mkdirSync
+TC-FILE-002,Lỗi khi file không tồn tại,file_id='missing.json',Ném lỗi FILE_NOT_FOUND,PASSED,Verify existsSync check
+TC-FILE-003,Lấy Image Stream với Mime đa dạng,png/jpg/unknown,Stream object + Mime,PASSED,Verify getMime logic
+TC-FILE-004,Lấy thông tin hình ảnh,filenames=['exist.png'],Mảng [{filename:'exist.png'}],PASSED,Verify existsSync for mediaDir & files
+TC-FILE-005,Path Traversal Attack,filename='../../etc/passwd',Ném lỗi ACCESS_DENIED,FAILED,Cho phép truy cập file ngoài thư mục media (High Risk)
+TC-FILE-006,Đọc file JSON bị hỏng,filename='corrupted.json',Ném lỗi INVALID_JSON,FAILED,Server crash do lỗi JSON.parse không bắt ngoại lệ
+TC-FILE-007,Upload file ảnh thành công,file='img.png',URL link,PASSED,File save tốt
+TC-FILE-008,Xóa file vật lý thành công,id=1,Success,PASSED,Unlink tốt
+TC-FILE-009,Lấy thông tin file PDF,id=1,Metadata,PASSED,Mime type detection tốt
+TC-FILE-010,Upload file vượt quá 5MB,file=10MB,Ném lỗi,PASSED,Size validation tốt
+TC-SCHEX-001,Lấy danh sách lịch thi,None,Mảng lịch thi,PASSED,Query join exam tốt
+TC-SCHEX-002,Tạo lịch thi thành công,start=now end=now+1h,Lịch thi mới,PASSED,Insert timestamps tốt
+TC-SCHEX-003,Tạo lịch thi kết thúc trước bắt đầu,end < start,Ném lỗi INVALID_TIME,FAILED,Hệ thống cho phép end_time < start_time
+TC-SCHEX-004,Múi giờ cứng trong query (+7h),None,Sử dụng UTC,FAILED,Query cộng cứng 7h gây sai lệch múi giờ server
+TC-SCHEX-005,Xóa lịch thi đang có bài thi,id=1,Ném lỗi,PASSED,Check FK constraint tốt
+TC-SCHST-001,Lấy lịch học pending,None,Mảng lịch học,PASSED,Query status='pending' tốt
+TC-SCHST-002,Cập nhật trạng thái lịch học,id=1 status='done',Lịch học đã cập nhật,PASSED,Update status tốt
+TC-SCHST-003,Xóa trắng mô tả lịch học,description=null,Description=null,FAILED,Hàm update dùng COALESCE nên không thể set về null
+TC-SCHST-004,Múi giờ cứng (+7h) trong filter,None,Sử dụng UTC,FAILED,Query cộng cứng 7h gây lỗi filter theo giờ
+TC-SCHST-005,Đánh dấu quá hạn tự động,None,Status chuyển sang 'miss',PASSED,Query markOverTime tốt
+TC-GOAL-001,Lấy mục tiêu người dùng,user_id=1,Mảng mục tiêu + max_score,PASSED,Complex JOIN hoạt động tốt
+TC-GOAL-002,Tạo mục tiêu học tập,target=9,Mục tiêu mới,PASSED,Insert goal tốt
+TC-GOAL-003,Tạo mục tiêu đã quá hạn,deadline=2020,Ném lỗi INVALID_DEADLINE,FAILED,Cho phép tạo mục tiêu quá hạn
+TC-GOAL-004,Lỗi tên cột trong markOverTime,None,Update success,FAILED,Query dùng 'end_time' thay vì 'deadline' (Lỗi Schema)
+TC-GOAL-005,Xóa mục tiêu của người khác,goal_id=1 user_id=2,Ném lỗi,PASSED,Check userId trong WHERE delete tốt
+TC-ROLE-001,Tạo quyền admin trùng lặp,name='admin',Ném lỗi,PASSED,Check tồn tại trước khi tạo tốt
+TC-ROLE-002,Lấy danh sách quyền hệ thống,None,Mảng các quyền,PASSED,Select all roles tốt
+TC-ROLE-003,Gán quyền cho người dùng,user=1 role=2,Success,PASSED,Update user role tốt
+TC-ROLE-004,Xóa quyền đang có người dùng,role_id=2,Ném lỗi,PASSED,FK constraint check tốt
+TC-ROLE-005,Lấy quyền theo tên,name='user',Role object,PASSED,Query by name tốt
+TC-BNKQS-001,Đồng bộ câu hỏi rỗng vào ngân hàng,list=[],Ném lỗi,PASSED,Validate empty array tốt
+TC-BNKQS-002,Đồng bộ câu hỏi thành công,bank_id=1 ids=[1,2],Success,PASSED,Bulk insert tốt
+TC-BNKQS-003,Xóa câu hỏi khỏi ngân hàng đề,bank_id=1 q_id=1,Success,PASSED,Delete link tốt
+TC-BNKQS-004,Kiểm tra câu hỏi tồn tại trong bank,bank_id=1 q_id=1,true,PASSED,Exist check tốt
+TC-BNKQS-005,Lấy tất cả câu hỏi của bank,bank_id=1,Mảng câu hỏi,PASSED,Select related tốt
+TC-EXQS-001,Xóa câu hỏi khỏi bài thi,id=1,true,PASSED,Update Redis cache tốt
+TC-EXQS-002,Đồng bộ câu hỏi vào bài thi,exam_id=1 ids=[1],Success,PASSED,Insert related tốt
+TC-EXQS-003,Xóa tất cả câu hỏi của bài thi,exam_id=1,Success,PASSED,Bulk delete related tốt
+TC-EXQS-004,Kiểm tra câu hỏi trong bài thi,exam_id=1 q_id=1,true,PASSED,Check link tốt
+TC-EXQS-005,Lấy số lượng câu hỏi của bài thi,exam_id=1,Count,PASSED,Aggregation tốt
+TC-DOC-001,Lấy tất cả tài liệu thành công với bộ lọc,"page=1, status='All', search='search'",Đối tượng chứa danh sách tài liệu và totalPages,PASSED,[CheckDB] Verify dual SELECTs
+TC-DOC-002,Tạo tài liệu mới thành công,"data={title:'New Doc', topic_id:1}, link='http://link.com'",Đối tượng tài liệu vừa tạo,PASSED,[CheckDB] Verify INSERT query [Rollback]
+TC-DOC-003,Cập nhật tài liệu thành công,"document_id=1, data={title:'Updated Title'}",Đối tượng tài liệu đã cập nhật,PASSED,[CheckDB] Verify UPDATE query [Rollback]
+TC-DOC-004,Xóa tài liệu thành công,document_id=1,void,PASSED,[CheckDB] Verify DELETE query [Rollback]

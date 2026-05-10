@@ -1,0 +1,22 @@
+File,Statements %,Branches %,Functions %,Lines %
+TOTAL,30.45%,16.87%,31.15%,30.75%
+auth.service.ts,96.96%,85.71%,100%,96.96%
+bank.question.service.ts,91.66%,80%,100%,91.3%
+bank.service.ts,2.87%,0%,0%,2.96%
+current.process.service.ts,20%,0%,0%,20%
+dashboard.service.ts,4.76%,0%,0%,5.08%
+document.service.ts,82.14%,28.57%,80%,82.14%
+exam.question.service.ts,88.88%,33.33%,100%,88.46%
+exam.service.ts,3.37%,0%,0%,3.52%
+file.service.ts,84.37%,50%,100%,88.88%
+flashcard.deck.service.ts,0%,0%,0%,0%
+flashcard.service.ts,8.33%,0%,0%,8.82%
+question.service.ts,3.73%,0%,0%,3.73%
+roadmap.service.ts,15%,0%,0%,15%
+role.service.ts,42.85%,25%,60%,42.85%
+schedule.exam.service.ts,56.41%,50%,60%,57.89%
+schedule.study.service.ts,64%,47.05%,57.14%,64%
+subject.service.ts,21.42%,0%,0%,21.42%
+topic.service.ts,21.42%,0%,0%,25%
+user.goal.service.ts,90.9%,100%,100%,90.9%
+user.service.ts,97.43%,91.66%,100%,100%
